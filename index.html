@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kuis Asyik Perkalian Bersusun - Kelas 3</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --primary:#7c4dff; --primary-light:#b388ff;
+  --accent:#ff6d00; --success:#43a047; --warning:#fb8c00;
+  --danger:#e53935; --bg1:#fff3e0; --bg2:#e1f5fe; --bg3:#f8bbd0;
+  --card:#ffffff; --text:#37474f; --muted:#78909c;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:'Fredoka','Comic Sans MS','Trebuchet MS',system-ui,sans-serif;
+  background:linear-gradient(135deg,var(--bg1) 0%,var(--bg2) 50%,var(--bg3) 100%);
+  background-attachment:fixed;min-height:100vh;padding:12px;color:var(--text);line-height:1.5;
+}
+.container{max-width:720px;margin:0 auto}
+.screen{display:none}.screen.active{display:block;animation:fadeIn .4s}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+.start-card{
+  background:var(--card);border-radius:24px;padding:28px 22px;
+  box-shadow:0 12px 32px rgba(124,77,255,.18);text-align:center;margin-top:16px;
+}
+.title{font-size:clamp(1.6rem,5vw,2.3rem);font-weight:700;color:var(--primary);margin-bottom:8px}
+.subtitle{font-size:clamp(1rem,3.5vw,1.2rem);color:var(--muted);margin-bottom:20px}
+.emoji-deco{font-size:clamp(2rem,8vw,3rem);margin-bottom:8px}
+
+.form-group{text-align:left;margin-bottom:16px}
+.form-group label{display:block;font-weight:600;margin-bottom:6px;color:var(--text);font-size:1.05rem}
+.form-group input,.form-group select{
+  width:100%;padding:12px 14px;border:2px solid var(--primary-light);
+  border-radius:14px;font-size:1.05rem;font-family:inherit;background:#fafafa;
+}
+.form-group input:focus,.form-group select:focus{outline:none;border-color:var(--primary);background:#fff}
+
+.btn{
+  display:inline-block;border:none;border-radius:16px;padding:14px 24px;
+  font-size:1.05rem;font-weight:600;font-family:inherit;cursor:pointer;
+  transition:transform .1s;color:#fff;background:var(--primary);box-shadow:0 6px 0 #5e35b1;
+}
+.btn:hover{transform:translateY(-1px)}
+.btn:active{transform:translateY(4px);box-shadow:0 2px 0 #5e35b1}
+.btn-success{background:var(--success);box-shadow:0 6px 0 #2e7d32}.btn-success:active{box-shadow:0 2px 0 #2e7d32}
+.btn-warning{background:var(--warning);box-shadow:0 6px 0 #ef6c00}.btn-warning:active{box-shadow:0 2px 0 #ef6c00}
+.btn-block{display:block;width:100%}
+
+.hint-box{background:#e3f2fd;border-radius:12px;padding:12px 14px;font-size:.95rem;color:#0d47a1;margin-bottom:18px;text-align:left}
+.hint-box b{color:#1565c0}
+
+.quiz-header{
+  background:var(--card);border-radius:18px;padding:12px 16px;margin-bottom:12px;
+  box-shadow:0 4px 14px rgba(0,0,0,.08);display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:10px;
+}
+.student-info{font-size:.95rem}.student-info b{color:var(--primary)}
+.score-pill{background:var(--accent);color:#fff;padding:6px 14px;border-radius:999px;font-weight:600;font-size:.95rem}
+.progress-wrap{width:100%;background:#eceff1;border-radius:999px;height:12px;overflow:hidden;margin-top:4px}
+.progress-bar{height:100%;background:linear-gradient(90deg,var(--primary),var(--accent));border-radius:999px;transition:width .4s;width:0%}
+
+.q-card{background:var(--card);border-radius:22px;padding:20px 18px;box-shadow:0 8px 24px rgba(0,0,0,.10);margin-bottom:12px}
+.q-badges{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.badge{padding:5px 12px;border-radius:999px;font-size:.85rem;font-weight:600}
+.badge-q{background:var(--primary);color:#fff}
+.badge-cat{background:#fff3e0;color:var(--accent);border:1px solid #ffcc80}
+.badge-type{background:#e1f5fe;color:#0277bd;border:1px solid #81d4fa}
+.q-prompt{font-size:1.1rem;margin-bottom:14px;font-weight:500}
+
+.method-tip{background:#fff8e1;border-left:5px solid var(--accent);border-radius:10px;padding:10px 12px;font-size:.92rem;color:#5d4037;margin-bottom:14px}
+
+.stack{display:inline-grid;grid-template-columns:repeat(3,52px);gap:6px 8px;place-items:center;background:#fafafa;padding:16px 20px;border-radius:14px;border:2px dashed var(--primary-light)}
+.stack-wrap{display:flex;justify-content:center;margin-bottom:14px}
+.cell{width:44px;height:48px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;font-weight:600}
+.cell.empty{background:transparent}
+.cell.given{color:var(--text)}
+.cell.op{color:var(--accent);font-size:1.4rem}
+.cell.placeholder{color:#b0bec5}
+.stack-line{grid-column:1/-1;height:3px;background:var(--text);border-radius:2px;margin:2px 0;width:100%}
+
+.digit-input{width:44px;height:48px;border:2px solid var(--primary);border-radius:10px;text-align:center;font-size:1.5rem;font-weight:600;font-family:inherit;background:#fff;color:var(--primary)}
+.digit-input:focus{outline:none;border-color:var(--accent);background:#fff8e1}
+.carry-input{border-color:var(--danger);color:var(--danger)}
+.carry-input:focus{border-color:var(--danger);background:#ffebee}
+
+.place-slot{width:44px;height:48px;border:2px dashed var(--accent);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;font-weight:600;cursor:pointer;background:#fff;color:var(--muted);user-select:none}
+.place-slot.selected{border-color:var(--primary);background:#ede7f6;transform:scale(1.05)}
+.place-slot.filled{border-style:solid;color:var(--accent)}
+.place-slot.carry-slot{border-color:var(--danger);color:var(--danger)}
+.place-slot.carry-slot.filled{color:var(--danger)}
+
+.mc-options{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:8px}
+.mc-option{padding:14px 12px;border:2px solid var(--primary-light);border-radius:14px;background:#fff;font-size:1.15rem;font-weight:600;cursor:pointer;font-family:inherit;color:var(--text);transition:all .15s}
+.mc-option:hover{background:#ede7f6;border-color:var(--primary)}
+.mc-option.selected{background:var(--primary);color:#fff;border-color:var(--primary)}
+.opt-label{display:inline-block;width:26px;height:26px;line-height:26px;border-radius:50%;background:var(--primary);color:#fff;margin-right:8px;font-size:.9rem}
+.mc-option.selected .opt-label{background:#fff;color:var(--primary)}
+
+.type-num-wrap{display:flex;justify-content:center;margin:10px 0}
+.type-num{width:160px;padding:14px;font-size:1.8rem;text-align:center;border:3px solid var(--primary);border-radius:14px;font-family:inherit;font-weight:600;color:var(--primary)}
+.type-num:focus{outline:none;border-color:var(--accent)}
+
+.palette{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:10px}
+.palette-digit{width:48px;height:48px;border:none;border-radius:12px;background:var(--accent);color:#fff;font-size:1.4rem;font-weight:700;cursor:pointer;font-family:inherit;box-shadow:0 4px 0 #e65100}
+.palette-digit:active{transform:translateY(3px);box-shadow:0 1px 0 #e65100}
+.palette-hint{text-align:center;font-size:.9rem;color:var(--muted);margin-top:6px}
+
+.story{background:#fff8e1;border-left:5px solid var(--accent);padding:14px 16px;border-radius:12px;font-size:1.08rem;margin-bottom:14px}
+.story b{color:var(--accent)}
+
+.feedback{border-radius:14px;padding:14px 16px;margin-top:14px;font-weight:500;display:none}
+.feedback.show{display:block;animation:pop .3s}
+.feedback.correct{background:#e8f5e9;border:2px solid var(--success);color:#1b5e20}
+.feedback.wrong{background:#fff3e0;border:2px solid var(--warning);color:#e65100}
+.feedback.reveal{background:#ffebee;border:2px solid var(--danger);color:#b71c1c}
+.fb-emoji{font-size:1.6rem}
+.fb-title{font-size:1.15rem;font-weight:700;margin-bottom:4px}
+.fb-detail{font-size:.98rem}
+.penalty-note{font-size:.9rem;color:var(--danger);margin-top:6px;font-weight:600}
+
+@keyframes pop{0%{transform:scale(.8);opacity:0}100%{transform:scale(1);opacity:1}}
+@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+
+.action-row{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap}
+.action-row .btn{flex:1;min-width:140px}
+
+.result-card{background:var(--card);border-radius:24px;padding:28px 22px;text-align:center;box-shadow:0 12px 32px rgba(124,77,255,.18);margin-top:16px}
+.result-emoji{font-size:clamp(3rem,12vw,5rem)}
+.score-big{font-size:clamp(2.5rem,10vw,4rem);font-weight:700;color:var(--primary)}
+.score-total{font-size:1.2rem;color:var(--muted)}
+.stars{font-size:1.8rem;margin:8px 0;letter-spacing:4px}
+.result-msg{font-size:1.15rem;margin:12px 0;font-weight:500}
+
+.breakdown{margin-top:18px;text-align:left;background:#f5f5f5;border-radius:14px;padding:14px 16px}
+.breakdown h3{margin-bottom:8px;font-size:1.05rem;color:var(--primary)}
+.bd-table{width:100%;border-collapse:collapse;font-size:.95rem}
+.bd-table th,.bd-table td{padding:7px 8px;text-align:left;border-bottom:1px solid #e0e0e0}
+.bd-table th{color:var(--muted);font-weight:600;font-size:.85rem}
+.bd-table td.num{text-align:right;font-weight:600}
+.scroll-wrap{overflow-x:auto;margin-top:10px}
+
+.confetti{position:fixed;pointer-events:none;font-size:1.6rem;animation:fall 2.5s ease-in forwards;z-index:999;top:0}
+@keyframes fall{0%{transform:translateY(-10vh) rotate(0);opacity:1}100%{transform:translateY(110vh) rotate(720deg);opacity:0}}
+
+@media (max-width:480px){
+  .mc-options{grid-template-columns:1fr}
+  .stack{padding:12px 14px}
+  .cell,.digit-input,.place-slot{width:40px;height:44px;font-size:1.3rem}
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <!-- START SCREEN -->
+  <div id="startScreen" class="screen active">
+    <div class="start-card">
+      <div class="emoji-deco">🎉✖️✨</div>
+      <h1 class="title">Kuis Asyik Perkalian Bersusun</h1>
+      <p class="subtitle">Untuk Siswa Kelas 3 SD 🎒</p>
+      <div class="hint-box">
+        📌 <b>Aturan Kuis:</b><br>
+        • Ada <b>12 soal</b>: 7 perkalian bersusun + 5 soal cerita.<br>
+        • Jawab dengan beragam cara: isi kotak, pilih jawaban, atau ketik sendiri!<br>
+        • Kalau salah, kamu boleh <b>mengulang 1 kali</b> (nilai dikurangi 2).<br>
+        • Kamu <b>tidak bisa lanjut</b> sebelum soal ini selesai.<br>
+        • Total nilai <b>100</b>. Semangat ya! 💪
+      </div>
+      <div class="form-group">
+        <label for="studentName">👤 Nama Lengkap</label>
+        <input type="text" id="studentName" placeholder="Tulis namamu di sini..." autocomplete="off">
+      </div>
+      <div class="form-group">
+        <label for="studentClass">🏫 Kelas</label>
+        <select id="studentClass">
+          <option value="">Pilih kelasmu...</option>
+          <option value="3A">3A</option>
+          <option value="3B">3B</option>
+          <option value="3C">3C</option>
+          <option value="3D">3D</option>
+        </select>
+      </div>
+      <button class="btn btn-block" onclick="startQuiz()">🚀 Mulai Kuis!</button>
+    </div>
+  </div>
+
+  <!-- QUIZ SCREEN -->
+  <div id="quizScreen" class="screen">
+    <div class="quiz-header">
+      <div class="student-info">👤 <b id="hdrName">-</b> &nbsp;|&nbsp; 🏫 <span id="hdrClass">-</span></div>
+      <div class="score-pill">⭐ Nilai: <span id="hdrScore">0</span>/100</div>
+      <div class="progress-wrap"><div class="progress-bar" id="progressBar"></div></div>
+    </div>
+    <div id="questionArea"></div>
+  </div>
+
+  <!-- RESULT SCREEN -->
+  <div id="resultScreen" class="screen">
+    <div class="result-card">
+      <div class="result-emoji" id="resultEmoji">🏆</div>
+      <h1 class="title" id="resultTitle">Kuis Selesai!</h1>
+      <p style="color:var(--muted);margin-bottom:6px">🎨 <b id="bdName"></b> — Kelas <b id="bdClass"></b></p>
+      <div class="score-big"><span id="finalScore">0</span></div>
+      <div class="score-total">dari 100</div>
+      <div class="stars" id="resultStars"></div>
+      <div class="result-msg" id="resultMsg"></div>
+      <div class="breakdown">
+        <h3>📋 Ringkasan</h3>
+        <table class="bd-table">
+          <tr><td>✅ Benar langsung</td><td class="num" id="bdFirst">0</td></tr>
+          <tr><td>⚠️ Benar saat mengulang</td><td class="num" id="bdRetry">0</td></tr>
+          <tr><td>❌ Belum tepat</td><td class="num" id="bdMiss">0</td></tr>
+        </table>
+        <div class="scroll-wrap">
+          <table class="bd-table" id="detailTable" style="margin-top:10px">
+            <thead><tr><th>No</th><th>Jenis</th><th>Hasil</th><th>Nilai</th></tr></thead>
+            <tbody id="detailBody"></tbody>
+          </table>
+        </div>
+      </div>
+      <button class="btn btn-block" style="margin-top:16px" onclick="restart()">🔄 Ulangi Kuis</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ====== Question bank ======
+const QUESTIONS=[
+  // 7 soal perkalian bersusun (2 digit x 1 digit)
+  {id:1,cat:'bersusun',type:'input-digits',value:10,title:'Perkalian Bersusun',
+   prompt:'Lengkapi kotak kosong (angka simpanan dan hasil) pada perkalian bersusun di bawah ini!',
+   top:24,mult:3,carry:1,result:[null,7,2],
+   explain:'Langkah 1: 4 × 3 = 12 → tulis 2, simpan 1. Langkah 2: 2 × 3 = 6, ditambah simpanan 1 jadi 7. Hasil = 72.'},
+  {id:2,cat:'bersusun',type:'multiple-choice',value:10,title:'Perkalian Bersusun',
+   prompt:'Hasil dari perkalian bersusun berikut adalah ...',
+   top:35,mult:4,carry:2,result:[1,4,0],answer:140,
+   options:[{v:130},{v:140},{v:120},{v:160}],
+   explain:'5 × 4 = 20 → tulis 0 simpan 2. 3 × 4 = 12, ditambah 2 jadi 14. Hasil = 140.'},
+  {id:3,cat:'bersusun',type:'type-number',value:10,title:'Perkalian Bersusun',
+   prompt:'Ketik hasil dari perkalian bersusun berikut!',
+   top:47,mult:6,carry:4,result:[2,8,2],answer:282,
+   explain:'7 × 6 = 42 → tulis 2 simpan 4. 4 × 6 = 24, ditambah 4 jadi 28. Hasil = 282.'},
+  {id:4,cat:'bersusun',type:'click-place',value:10,title:'Perkalian Bersusun',
+   prompt:'Letakkan angka yang benar ke dalam kotak kosong (simpanan dan hasil)!',
+   top:52,mult:7,carry:1,result:[3,6,4],
+   explain:'2 × 7 = 14 → tulis 4 simpan 1. 5 × 7 = 35, ditambah 1 jadi 36. Hasil = 364.'},
+  {id:5,cat:'bersusun',type:'input-digits',value:10,title:'Perkalian Bersusun',
+   prompt:'Lengkapi kotak kosong pada perkalian bersusun di bawah ini!',
+   top:63,mult:8,carry:2,result:[5,0,4],
+   explain:'3 × 8 = 24 → tulis 4 simpan 2. 6 × 8 = 48, ditambah 2 jadi 50. Hasil = 504.'},
+  {id:6,cat:'bersusun',type:'multiple-choice',value:10,title:'Perkalian Bersusun',
+   prompt:'Hasil dari perkalian bersusun berikut adalah ...',
+   top:18,mult:5,carry:4,result:[null,9,0],answer:90,
+   options:[{v:85},{v:95},{v:90},{v:80}],
+   explain:'8 × 5 = 40 → tulis 0 simpan 4. 1 × 5 = 5, ditambah 4 jadi 9. Hasil = 90.'},
+  {id:7,cat:'bersusun',type:'type-number',value:10,title:'Perkalian Bersusun',
+   prompt:'Ketik hasil dari perkalian bersusun berikut!',
+   top:79,mult:3,carry:2,result:[2,3,7],answer:237,
+   explain:'9 × 3 = 27 → tulis 7 simpan 2. 7 × 3 = 21, ditambah 2 jadi 23. Hasil = 237.'},
+  // 5 soal cerita (2 digit x 1 digit)
+  {id:8,cat:'cerita',type:'multiple-choice',value:6,title:'Soal Cerita',
+   prompt:'Pilih jawaban yang benar!',
+   story:'Rina punya <b>12 kotak pensil</b>. Setiap kotak berisi <b>6 pensil</b>. Berapa banyak pensil Rina seluruhnya?',
+   answer:72,options:[{v:66},{v:72},{v:78},{v:60}],
+   explain:'12 × 6 = 72. Rina punya 72 pensil seluruhnya.'},
+  {id:9,cat:'cerita',type:'type-number',value:6,title:'Soal Cerita',
+   prompt:'Ketik jawabanmu!',
+   story:'Bu Ani membuat <b>24 kue</b>. Setiap kue dihias dengan <b>4 buah ceri</b>. Berapa banyak ceri yang dibutuhkan Bu Ani?',
+   answer:96,explain:'24 × 4 = 96. Bu Ani butuh 96 ceri.'},
+  {id:10,cat:'cerita',type:'click-place',value:6,title:'Soal Cerita',
+   prompt:'Letakkan angka hasil ke dalam kotak!',
+   story:'Sebuah bioskop memiliki <b>15 baris</b> kursi. Setiap baris berisi <b>8 kursi</b>. Berapa total kursi di bioskop tersebut?',
+   answerDigits:['1','2','0'],explain:'15 × 8 = 120. Bioskop itu punya 120 kursi.'},
+  {id:11,cat:'cerita',type:'type-number',value:6,title:'Soal Cerita',
+   prompt:'Ketik jawabanmu!',
+   story:'Pak Budi memanen <b>32 kg mangga</b> dari setiap pohonnya. Dia memiliki <b>5 pohon</b> mangga. Berapa total mangga yang dipanen Pak Budi (dalam kg)?',
+   answer:160,explain:'32 × 5 = 160. Pak Budi panen 160 kg mangga.'},
+  {id:12,cat:'cerita',type:'multiple-choice',value:6,title:'Soal Cerita',
+   prompt:'Pilih jawaban yang benar!',
+   story:'Sekolah memesan <b>45 buku tulis</b> untuk setiap kelas. Ada <b>3 kelas</b> yang memesan. Berapa total buku tulis yang dipesan sekolah?',
+   answer:135,options:[{v:125},{v:135},{v:145},{v:130}],
+   explain:'45 × 3 = 135. Sekolah memesan 135 buku.'}
+];
+
+const PRAISE=['Hebat sekali! Jawabanmu benar! 🎉','Pintar! Kamu jago matematika! ⭐','Mantap! Lanjutkan! 🌟','Wow, tepat sekali! Kamu hebat! 🎊','Keren sekali! 👍','Luar biasa! Otakmu cemerlang! 🌈'];
+const ENCOURAGE=['Yah, belum tepat. Yuk coba sekali lagi! 💪','Hampir benar! Coba periksa lagi ya! 🤔','Jangan menyerah, coba sekali lagi! 🌈','Belum tepat, tapi kamu pasti bisa! ✨','Sabar ya, periksa hitunganmu lagi! 🧐'];
+
+let state={name:'',cls:'',current:0,scores:[],attempts:[],tries:0,selectedMC:null,placed:{},selectedSlot:null,answered:false};
+
+function $(id){return document.getElementById(id)}
+function pick(a){return a[Math.floor(Math.random()*a.length)]}
+
+function startQuiz(){
+  const name=$('studentName').value.trim(),cls=$('studentClass').value;
+  if(!name){alert('Yuk, isi namamu dulu! 😊');$('studentName').focus();return}
+  if(!cls){alert('Pilih kelasmu dulu ya! 🏫');$('studentClass').focus();return}
+  state={name,cls,current:0,scores:[],attempts:[],tries:0,selectedMC:null,placed:{},selectedSlot:null,answered:false};
+  $('hdrName').textContent=name;$('hdrClass').textContent=cls;
+  $('startScreen').classList.remove('active');
+  $('quizScreen').classList.add('active');
+  renderQuestion();
+}
+
+function updateHeader(){
+  const total=state.scores.reduce((a,b)=>a+(b||0),0);
+  $('hdrScore').textContent=total;
+  const pct=Math.round(state.current/QUESTIONS.length*100);
+  $('progressBar').style.width=pct+'%';
+}
+
+function renderQuestion(){
+  state.tries=0;state.selectedMC=null;state.placed={};state.selectedSlot=null;state.answered=false;
+  const q=QUESTIONS[state.current];const area=$('questionArea');
+  let html='<div class="q-card">';
+  html+='<div class="q-badges">';
+  html+='<span class="badge badge-q">Soal '+(state.current+1)+' / '+QUESTIONS.length+'</span>';
+  html+='<span class="badge badge-cat">'+(q.cat==='bersusun'?'✖️ Perkalian Bersusun':'📖 Soal Cerita')+'</span>';
+  const tl={'input-digits':'✏️ Isi Kotak','multiple-choice':'🔘 Pilihan Ganda','type-number':'⌨️ Ketik Jawaban','click-place':'🖱️ Letakkan Angka'}[q.type];
+  html+='<span class="badge badge-type">'+tl+'</span></div>';
+  if(state.current===0){
+    html+='<div class="method-tip">💡 <b>Cara bersusun:</b> kalikan satuan dulu, tulis hasilnya dan simpan angka puluhan. Lalu kalikan puluhan dan tambahkan simpanan.</div>';
+  }
+  html+='<div class="q-prompt">'+q.prompt+'</div>';
+  if(q.cat==='bersusun'){
+    html+=renderStack(q);
+  } else {
+    html+='<div class="story">'+q.story+'</div>';
+    if(q.type==='click-place') html+=renderCeritaSlots(q);
+  }
+  if(q.type==='multiple-choice') html+=renderMC(q);
+  else if(q.type==='type-number') html+=renderTypeNumber();
+  if(q.type==='click-place') html+=renderPalette(q);
+  html+='<div class="feedback" id="feedback"></div>';
+  html+='<div class="action-row" id="actionRow"><button class="btn" onclick="checkAnswer()">✅ Periksa Jawaban</button></div>';
+  html+='</div>';
+  area.innerHTML=html;
+  wireQuestion(q);
+  updateHeader();
+}
+
+function renderStack(q){
+  const ts=String(q.top).padStart(2,'0');
+  const tens=ts[0],ones=ts[1],mult=q.mult,result=q.result;
+  const interactive=(q.type==='input-digits'||q.type==='click-place');
+  function carryCell(){
+    if(!interactive) return '<div class="cell placeholder">?</div>';
+    if(q.type==='input-digits') return '<input class="digit-input carry-input" data-slot="carry" maxlength="1" inputmode="numeric" autocomplete="off">';
+    return '<div class="place-slot carry-slot" data-slot="carry">_</div>';
+  }
+  function resCell(i){
+    if(result[i]===null) return '<div class="cell empty"></div>';
+    if(!interactive) return '<div class="cell placeholder">?</div>';
+    if(q.type==='input-digits') return '<input class="digit-input" data-slot="r'+i+'" maxlength="1" inputmode="numeric" autocomplete="off">';
+    return '<div class="place-slot" data-slot="r'+i+'">_</div>';
+  }
+  let h='<div class="stack-wrap"><div class="stack">';
+  h+='<div class="cell empty"></div>'+carryCell()+'<div class="cell empty"></div>';
+  h+='<div class="cell empty"></div><div class="cell given">'+tens+'</div><div class="cell given">'+ones+'</div>';
+  h+='<div class="cell empty"></div><div class="cell op">×</div><div class="cell given">'+mult+'</div>';
+  h+='<div class="stack-line"></div>';
+  h+=resCell(0)+resCell(1)+resCell(2);
+  h+='</div></div>';
+  return h;
+}
+
+function renderCeritaSlots(q){
+  let h='<div class="stack-wrap"><div class="stack" style="border-style:solid;border-color:var(--accent);background:#fff3e0">';
+  for(let i=0;i<q.answerDigits.length;i++) h+='<div class="place-slot" data-slot="r'+i+'">_</div>';
+  h+='</div></div>';
+  return h;
+}
+
+function renderMC(q){
+  let opts=q.options.slice().map(o=>({...o})).sort(()=>Math.random()-.5);
+  let labels=['A','B','C','D'];
+  let h='<div class="mc-options">';
+  opts.forEach((o,i)=>{h+='<button class="mc-option" data-val="'+o.v+'" onclick="selectMC(this)"><span class="opt-label">'+labels[i]+'</span>'+o.v+'</button>'});
+  h+='</div>';
+  return h;
+}
+
+function renderTypeNumber(){
+  return '<div class="type-num-wrap"><input type="text" class="type-num" id="typeNumInput" inputmode="numeric" autocomplete="off" placeholder="?"></div>';
+}
+
+function renderPalette(q){
+  let needed=[];
+  if(q.cat==='bersusun'){needed.push(String(q.carry));q.result.forEach(d=>{if(d!==null)needed.push(String(d))})}
+  else{needed=q.answerDigits.slice()}
+  let extras=['0','1','2','3','4','5','6','7','8','9'].filter(d=>!needed.includes(d));
+  let distractors=extras.sort(()=>Math.random()-.5).slice(0,3);
+  let palette=needed.concat(distractors).sort(()=>Math.random()-.5);
+  let h='<div class="palette-hint">👆 Klik kotak kosong, lalu klik angka untuk mengisinya. Klik kotak berisi untuk menghapus.</div><div class="palette">';
+  palette.forEach(d=>{h+='<button class="palette-digit" onclick="placeDigit(\''+d+'\')">'+d+'</button>'});
+  h+='</div>';
+  return h;
+}
+
+function wireQuestion(q){
+  if(q.type==='input-digits'){
+    const inputs=Array.from(document.querySelectorAll('.digit-input'));
+    inputs.forEach((inp,idx)=>{
+      inp.addEventListener('input',e=>{
+        e.target.value=e.target.value.replace(/[^0-9]/g,'');
+        if(e.target.value&&idx<inputs.length-1) inputs[idx+1].focus();
+      });
+    });
+    if(inputs[0]) inputs[0].focus();
+  }
+  if(q.type==='type-number'){
+    const inp=$('typeNumInput');
+    if(inp){
+      inp.addEventListener('input',e=>{e.target.value=e.target.value.replace(/[^0-9]/g,'')});
+      inp.focus();
+    }
+  }
+  if(q.type==='click-place'){
+    document.querySelectorAll('.place-slot').forEach(s=>{
+      s.addEventListener('click',()=>{
+        if(state.answered) return;
+        if(state.placed[s.dataset.slot]){
+          delete state.placed[s.dataset.slot];
+          s.textContent='_';s.classList.remove('filled');
+        }
+        document.querySelectorAll('.place-slot.selected').forEach(x=>x.classList.remove('selected'));
+        s.classList.add('selected');
+        state.selectedSlot=s.dataset.slot;
+      });
+    });
+  }
+}
+
+function selectMC(btn){
+  if(state.answered) return;
+  document.querySelectorAll('.mc-option').forEach(o=>o.classList.remove('selected'));
+  btn.classList.add('selected');
+  state.selectedMC=btn.dataset.val;
+}
+
+function placeDigit(d){
+  if(state.answered) return;
+  if(!state.selectedSlot){alert('Pilih dulu kotak kosongnya, baru klik angka! 😊');return}
+  state.placed[state.selectedSlot]=d;
+  const el=document.querySelector('.place-slot[data-slot="'+state.selectedSlot+'"]');
+  if(el){el.textContent=d;el.classList.add('filled');el.classList.remove('selected')}
+  state.selectedSlot=null;
+}
+
+function readAnswer(q){
+  if(q.type==='multiple-choice') return state.selectedMC;
+  if(q.type==='type-number') return $('typeNumInput').value.trim();
+  if(q.type==='input-digits'){
+    let o={};
+    document.querySelectorAll('.digit-input').forEach(i=>{o[i.dataset.slot]=i.value.trim()});
+    return o;
+  }
+  if(q.type==='click-place') return {...state.placed};
+  return null;
+}
+
+function isCorrect(q,ans){
+  if(q.type==='multiple-choice') return String(ans)===String(q.answer);
+  if(q.type==='type-number') return String(ans)===String(q.answer);
+  if(q.type==='input-digits'){
+    if(String(ans.carry)!==String(q.carry)) return false;
+    for(let i=0;i<3;i++){if(q.result[i]===null) continue; if(String(ans['r'+i])!==String(q.result[i])) return false}
+    return true;
+  }
+  if(q.type==='click-place'){
+    if(q.cat==='bersusun'){
+      if(String(ans.carry)!==String(q.carry)) return false;
+      for(let i=0;i<3;i++){if(q.result[i]===null) continue; if(String(ans['r'+i])!==String(q.result[i])) return false}
+      return true;
+    } else {
+      for(let i=0;i<q.answerDigits.length;i++){if(String(ans['r'+i])!==String(q.answerDigits[i])) return false}
+      return true;
+    }
+  }
+  return false;
+}
+
+function isEmpty(q,ans){
+  if(q.type==='multiple-choice') return !ans;
+  if(q.type==='type-number') return !ans;
+  if(q.type==='input-digits') return Object.values(ans).every(v=>!v);
+  if(q.type==='click-place') return Object.keys(ans).length===0;
+  return true;
+}
+
+function lockInputs(){
+  document.querySelectorAll('.digit-input,.type-num').forEach(i=>i.disabled=true);
+  document.querySelectorAll('.mc-option,.place-slot,.palette-digit').forEach(b=>b.style.pointerEvents='none');
+}
+
+function revealCorrect(q){
+  if(q.type==='input-digits'){
+    const c=document.querySelector('.digit-input[data-slot="carry"]');
+    if(c){c.value=q.carry}
+    q.result.forEach((d,i)=>{if(d!==null){const e=document.querySelector('.digit-input[data-slot="r'+i+'"]');if(e)e.value=d}});
+    document.querySelectorAll('.digit-input').forEach(i=>{i.disabled=true;i.style.color='var(--success)';i.style.borderColor='var(--success)'});
+  } else if(q.type==='click-place'){
+    if(q.cat==='bersusun'){
+      const c=document.querySelector('.place-slot[data-slot="carry"]');
+      if(c){c.textContent=q.carry;c.classList.add('filled');c.style.color='var(--success)';c.style.borderColor='var(--success)';c.style.borderStyle='solid'}
+      q.result.forEach((d,i)=>{if(d!==null){const e=document.querySelector('.place-slot[data-slot="r'+i+'"]');if(e){e.textContent=d;e.classList.add('filled');e.style.color='var(--success)';e.style.borderColor='var(--success)';e.style.borderStyle='solid'}}});
+    } else {
+      q.answerDigits.forEach((d,i)=>{const e=document.querySelector('.place-slot[data-slot="r'+i+'"]');if(e){e.textContent=d;e.classList.add('filled');e.style.color='var(--success)';e.style.borderColor='var(--success)';e.style.borderStyle='solid'}});
+    }
+    document.querySelectorAll('.place-slot,.palette-digit').forEach(b=>b.style.pointerEvents='none');
+  } else if(q.type==='multiple-choice'){
+    document.querySelectorAll('.mc-option').forEach(o=>{
+      o.style.pointerEvents='none';
+      if(String(o.dataset.val)===String(q.answer)){
+        o.style.background='var(--success)';o.style.borderColor='var(--success)';o.style.color='#fff';
+        const lbl=o.querySelector('.opt-label');if(lbl){lbl.style.background='#fff';lbl.style.color='var(--success)'}
+      }
+    });
+  } else if(q.type==='type-number'){
+    const inp=$('typeNumInput');if(inp){inp.value=q.answer;inp.disabled=true;inp.style.color='var(--success)';inp.style.borderColor='var(--success)'}
+  }
+}
+
+function checkAnswer(){
+  const q=QUESTIONS[state.current];const ans=readAnswer(q);
+  if(isEmpty(q,ans)){alert('Yuk, isi jawabanmu dulu! ✏️');return}
+  state.tries++;
+  const correct=isCorrect(q,ans);
+  const fb=$('feedback');const ar=$('actionRow');
+  const nextLabel=state.current<QUESTIONS.length-1?'➡️ Lanjut ke Soal Berikutnya':'🏁 Selesai!';
+  if(correct){
+    let pts=q.value;
+    if(state.tries===2) pts=Math.max(0,q.value-2);
+    state.scores[state.current]=pts;
+    state.attempts[state.current]=(state.tries===1)?'first':'retry';
+    state.answered=true;
+    fb.className='feedback correct show';
+    fb.innerHTML='<div class="fb-title">'+pick(PRAISE)+'</div><div class="fb-detail">'+q.explain+(state.tries===2?'<div class="penalty-note">⭐ Nilai soal ini: '+pts+' (karena mengulang dikurangi 2)</div>':'<div class="penalty-note" style="color:var(--success)">⭐ Nilai soal ini: '+pts+'</div>')+'</div>';
+    ar.innerHTML='<button class="btn btn-success" onclick="nextQuestion()">'+nextLabel+'</button>';
+    lockInputs();confetti();updateHeader();
+  } else {
+    if(state.tries===1){
+      state.answered=false;
+      fb.className='feedback wrong show';
+      fb.innerHTML='<div class="fb-title">'+pick(ENCOURAGE)+'</div><div class="fb-detail">Kamu boleh <b>mengulang 1 kali</b>. Tiap mengulang nilai dikurangi <b>2</b>.</div><div class="penalty-note">Jika benar saat mengulang, nilai soal ini: '+(q.value-2)+'</div>';
+      ar.innerHTML='<button class="btn btn-warning" onclick="retryQuestion()">🔄 Coba Lagi (mengulang 1x)</button>';
+    } else {
+      state.scores[state.current]=0;
+      state.attempts[state.current]='miss';
+      state.answered=true;
+      let cd='';
+      if(q.type==='input-digits'||q.type==='click-place'){
+        if(q.cat==='bersusun') cd='Simpanan: '+q.carry+', Hasil: '+q.result.filter(x=>x!==null).join('');
+        else cd='Hasil: '+q.answerDigits.join('');
+      } else cd=String(q.answer);
+      fb.className='feedback reveal show';
+      fb.innerHTML='<div class="fb-title">Jawaban yang benar: '+cd+'</div><div class="fb-detail">'+q.explain+'</div><div class="penalty-note">Nilai soal ini: 0. Yuk semangat untuk soal berikutnya! 💪</div>';
+      ar.innerHTML='<button class="btn" onclick="nextQuestion()">'+nextLabel+'</button>';
+      revealCorrect(q);updateHeader();
+    }
+  }
+}
+
+function retryQuestion(){
+  state.tries=1;state.answered=false;state.selectedMC=null;state.placed={};state.selectedSlot=null;
+  $('feedback').className='feedback';$('feedback').innerHTML='';
+  document.querySelectorAll('.digit-input').forEach(i=>i.value='');
+  document.querySelectorAll('.place-slot').forEach(s=>{s.textContent='_';s.classList.remove('filled','selected');s.style.color='';s.style.borderColor='';s.style.borderStyle=''});
+  document.querySelectorAll('.mc-option').forEach(o=>o.classList.remove('selected'));
+  const tn=$('typeNumInput');if(tn){tn.value='';tn.focus()}
+  $('actionRow').innerHTML='<button class="btn" onclick="checkAnswer()">✅ Periksa Jawaban (mengulang)</button>';
+  const q=QUESTIONS[state.current];
+  if(q.type==='input-digits'){const inputs=Array.from(document.querySelectorAll('.digit-input'));if(inputs[0])inputs[0].focus()}
+}
+
+function nextQuestion(){
+  state.current++;
+  if(state.current>=QUESTIONS.length) showResult();
+  else{renderQuestion();window.scrollTo({top:0,behavior:'smooth'})}
+}
+
+function showResult(){
+  $('quizScreen').classList.remove('active');
+  $('resultScreen').classList.add('active');
+  const total=state.scores.reduce((a,b)=>a+(b||0),0);
+  $('finalScore').textContent=total;
+  $('bdName').textContent=state.name;$('bdClass').textContent=state.cls;
+  let f=0,r=0,m=0;
+  state.attempts.forEach(a=>{if(a==='first')f++;else if(a==='retry')r++;else if(a==='miss')m++});
+  $('bdFirst').textContent=f;$('bdRetry').textContent=r;$('bdMiss').textContent=m;
+  let rows='';
+  QUESTIONS.forEach((q,i)=>{
+    const att=state.attempts[i]||'-';
+    const al=att==='first'?'✅ Benar':att==='retry'?'⚠️ Ulang':att==='miss'?'❌ Salah':'-';
+    const pts=state.scores[i]||0;
+    rows+='<tr><td>'+(i+1)+'</td><td>'+(q.cat==='bersusun'?'Bersusun':'Cerita')+'</td><td>'+al+'</td><td class="num">'+pts+'</td></tr>';
+  });
+  $('detailBody').innerHTML=rows;
+  let stars=Math.round(total/20);let ss='';for(let i=0;i<5;i++)ss+=i<stars?'⭐':'☆';
+  $('resultStars').textContent=ss;
+  let emoji,msg;
+  if(total===100){emoji='🏆';msg='Sempurna! Kamu juara matematika! 🎉'}
+  else if(total>=85){emoji='🌟';msg='Hebat sekali! Kamu pintar! 🎊'}
+  else if(total>=70){emoji='👍';msg='Bagus! Terus berlatih ya! 💪'}
+  else if(total>=50){emoji='🌈';msg='Lumayan! Yuk tingkatkan lagi! ✨'}
+  else{emoji='💪';msg='Tetap semangat! Ayo belajar lagi ya! 📚'}
+  $('resultEmoji').textContent=emoji;$('resultMsg').textContent=msg;
+  if(total>=70) confetti();
+}
+
+function restart(){
+  $('resultScreen').classList.remove('active');
+  $('startScreen').classList.add('active');
+  $('studentName').value='';$('studentClass').value='';
+  state={name:'',cls:'',current:0,scores:[],attempts:[],tries:0,selectedMC:null,placed:{},selectedSlot:null,answered:false};
+}
+
+function confetti(){
+  const emojis=['🎉','⭐','🌟','✨','🎊','💫','🎈'];
+  for(let i=0;i<18;i++){
+    const el=document.createElement('div');el.className='confetti';el.textContent=pick(emojis);
+    el.style.left=(Math.random()*100)+'vw';el.style.animationDelay=(Math.random()*.5)+'s';
+    el.style.fontSize=(1+Math.random()*1.2)+'rem';
+    document.body.appendChild(el);setTimeout(()=>el.remove(),3000);
+  }
+}
+
+document.addEventListener('keydown',e=>{
+  if(e.key==='Enter'&&!state.answered){
+    const q=QUESTIONS[state.current];
+    if(q&&q.type==='type-number'&&document.getElementById('quizScreen').classList.contains('active')) checkAnswer();
+  }
+});
+</script>
+</body>
+</html>
